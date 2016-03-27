@@ -40,7 +40,11 @@ $(document).ready(function(){
       dataType:"json";
   });
 
-  $("#name_symbol").change(function(){
+  $("#name_symbol").keypress(function(){
     $("#non_valid_prompt").text('');
+  });
+
+  $('.carousel').carousel({ 
+      interval: false, //time iterval 2000ms
   });
 });
