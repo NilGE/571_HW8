@@ -31,8 +31,6 @@
 	<link rel="stylesheet" type="text/css" href="css/HW8.css">
 	<script type="text/javascript" src="js/script.js"></script>
 	<script type="text/javascript" src="js/date.format.min.js"></script>
-
-	<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css">
 </head>
 <body>
 	<script>
@@ -42,15 +40,6 @@
 	      xfbml      : true,
 	      version    : 'v2.5'
 	    });
-
-	    FB.getLoginStatus(function(response) {
-		  if (response.status === 'connected') {
-		    console.log('Logged in.');
-		  }
-		  else {
-		    FB.login();
-		  }
-		});
 	  };
 
 	  (function(d, s, id){
@@ -60,6 +49,33 @@
 	     js.src = "//connect.facebook.net/en_US/sdk.js";
 	     fjs.parentNode.insertBefore(js, fjs);
 	   }(document, 'script', 'facebook-jssdk'));
+
+	  function fb_feeds() {
+	  	FB.login(function(response){
+	  		FB.getLoginStatus(function(response) {
+			  if (response.status === 'connected') {
+			    FB.ui({
+			  		method: 'feed',
+		          	link: 'https://cs-server.usc.edu:20909/HW8/HW8.html',
+		          	picture: 'http://chart.finance.yahoo.com/t?s='+$("#name_symbol").val()+'&lang=en-US&width=400&height=300',
+		          	name: '“Current Stock Price of '+$("#s_name").text()+' is '+$("#s_price").text(),
+		          	caption: 'Last Traded Price: '+$("#s_price").text()+', '+$("#s_change").text(),
+		          	description: 'Stock Information of '+$("#s_name").text()+' ('+$("#s_symbol").text()+')'
+		        }, function(response){
+		        	if (response && !response.error_message) {
+				      alert('Post Successfully');
+				    } else {
+				      alert('Not Posted');
+				    }
+		        });
+			  } else if(response.status == 'not_authorized') {
+			  	alert("not authorized!");
+			  } else {
+			    FB.login();
+			  }
+			});
+	  	});
+	  }
 	</script>
 	<div class="container">
 		<div class="well">
@@ -124,30 +140,34 @@
 							</div><!-- heading -->
 						  	<div class="panel-body">
 						     	<table class="table table-striped">
-						     		<tr>
-						     			<th>Symbol</th>
-						     			<th>Company</th>
-						     			<th>Stock Price</th>
-						     			<th>Change (Change Percent)</th>
-						     			<th>Market Cap</th>
-						     			<th></th>
-						     		</tr>
-						   			<tr>
-						   				<td><a href="#">AAPL</a></td>
-						   				<td>Apple Inc</td>
-						   				<td>$ 105.89</td>
-						   				<td>0.09(0.09%)</td>
-						   				<td>587.12 Billion</td>
-						   				<td><button type="button" class="btn default"><span class="glyphicon glyphicon-trash"></span></button></td>
-						   			</tr>
-						   			<tr>
-						   				<td><a href="#">TSLA</a></td>
-						   				<td>Tesla</td>
-						   				<td>$ 232.34</td>
-						   				<td>5.96(2.63%)</td>
-						   				<td>259/05 Billion</td>
-						   				<td><button type="button" class="btn default"><span class="glyphicon glyphicon-trash"></span></button></td>
-						   			</tr>
+						     		<thead>
+						     			<tr>
+							     			<th>Symbol</th>
+							     			<th>Company</th>
+							     			<th>Stock Price</th>
+							     			<th>Change (Change Percent)</th>
+							     			<th>Market Cap</th>
+							     			<th></th>
+							     		</tr>
+						     		</thead>
+						     		<tbody id="favor_list_content">
+						     			<tr>
+							   				<td><a href="#">AAPL</a></td>
+							   				<td>Apple Inc</td>
+							   				<td>$ 105.89</td>
+							   				<td>0.09(0.09%)</td>
+							   				<td>587.12 Billion</td>
+							   				<td><button type="button" class="btn default"><span class="glyphicon glyphicon-trash"></span></button></td>
+							   			</tr>
+							   			<tr>
+							   				<td><a href="#">TSLA</a></td>
+							   				<td>Tesla</td>
+							   				<td>$ 232.34</td>
+							   				<td>5.96(2.63%)</td>
+							   				<td>259/05 Billion</td>
+							   				<td><button type="button" class="btn default"><span class="glyphicon glyphicon-trash"></span></button></td>
+							   			</tr>
+						     		</tbody>
 						     	</table>
 						  	</div>
 						</div><!-- panel -->
@@ -196,8 +216,8 @@
 									  			</div>
 									  			
 									  			<div class="text-right col-md-6">
-									 				<a href=""><img src="img/fb.png" width="35" height="35"></a>
-									 				<button type="button" class="btn btn-default"><span style="font-size:20px" class="fa fa-star-o"></span></button>
+									 				<a href="javascript:fb_feeds()"><img src="img/fb.png" width="35" height="35"></a>
+									 				<button id="favor_btn" type="button" class="btn btn-default"><span style="font-size:20px" class="glyphicon glyphicon-star"></span></button>
 										 		</div>
 									  		</div>
 									 	<div class="row">
