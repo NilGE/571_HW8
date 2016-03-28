@@ -16,11 +16,6 @@
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
 	<!-- <script src="js/bootstrap.min.js"></script> -->
 
-	
-
-
-	
-
 	<!-- jquery ui -->
 	<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">
 	<!-- <link rel="stylesheet" type="text/css" href="css/jquery-ui.min.css"> -->
@@ -35,8 +30,37 @@
 	
 	<link rel="stylesheet" type="text/css" href="css/HW8.css">
 	<script type="text/javascript" src="js/script.js"></script>
+	<script type="text/javascript" src="js/date.format.min.js"></script>
+
+	<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css">
 </head>
 <body>
+	<script>
+	  window.fbAsyncInit = function() {
+	    FB.init({
+	      appId      : '1220322557997304',
+	      xfbml      : true,
+	      version    : 'v2.5'
+	    });
+
+	    FB.getLoginStatus(function(response) {
+		  if (response.status === 'connected') {
+		    console.log('Logged in.');
+		  }
+		  else {
+		    FB.login();
+		  }
+		});
+	  };
+
+	  (function(d, s, id){
+	     var js, fjs = d.getElementsByTagName(s)[0];
+	     if (d.getElementById(id)) {return;}
+	     js = d.createElement(s); js.id = id;
+	     js.src = "//connect.facebook.net/en_US/sdk.js";
+	     fjs.parentNode.insertBefore(js, fjs);
+	   }(document, 'script', 'facebook-jssdk'));
+	</script>
 	<div class="container">
 		<div class="well">
 				<div class="row">
@@ -44,10 +68,10 @@
 				</div>
 				<div class="row">
 					<form id="quote_form">
-						<div class="form-group col-md-3">
+						<div class="form-group col-md-4 col-lg-3">
 							<label for="stock_name">Enter the stock name or symbol:<span class="error">*</span></label>
 						</div>
-						<div class="form-group col-md-6">
+						<div class="form-group col-md-5 col-lg-6">
 							<input class="form-control" type="text" id="name_symbol" name="name_symbol" placeholder="Apple Inc or AAPL" 
 							required
 							autocomplete="off"
@@ -56,7 +80,7 @@
 							pattern="^.*[^\s]+.*$"
 							>
 						</div>
-						<div class="form-group col-md-3">
+						<div class="form-group col-md-3 col-lg-3">
 							<button class="btn btn-primary" id="quote" type="submit"><span class="glyphicon glyphicon-search"></span> Get Quote</button>
 						 	<button class="btn btn-default" type="button"><span class="glyphicon glyphicon-refresh"></span> Clear</button>
 						</div>
@@ -66,7 +90,12 @@
 				<div class="row">
 					<div id="non_valid_prompt"class="error col-sm-12 col-md-offset-3 col-md-6"></div>
 					<div class="col-sm-12 col-md-3">
-						<div><strong>Powered by:</strong><img src="img/mod-logo.png"></div>
+						<div>
+							<strong>Powered by:</strong>
+							<a href="http://dev.markitondemand.com/MODApis/">
+								<img id="logo" src="img/mod-logo.png">
+							</a>
+						</div>
 					</div>
 				</div>
 		</div><!-- well -->
@@ -75,22 +104,15 @@
 
 		<div class="well">
 			<div class="carousel slide" id="result_tab"><!-- data-ride="carousel" -->
-				  <!-- Indicators -->
-				  <!-- <ol class="carousel-indicators">
-				    <li data-target="#result_tab" data-slide-to="0"></li>
-				    <li data-target="#result_tab" data-slide-to="1"></li>
-				  </ol> -->
-
-				  <!-- Wrapper for slides -->
 			  	<div class="carousel-inner" >
 
 				  	<!-- Favorate -->
 				    <div class="item">
 				        <div class="panel panel-default">
-							<div class="panel-heading">
+							<div class="panel-heading clearfix">
 						    	<h3 class="panel-title pull-left">Favorite List</h3>
 						    	<div class="pull-right">
-						    		Automatic Refresh:
+						    		<span class="hidden_word">Automatic Refresh:</span>
 						    		<input type="checkbox" data-toggle="toggle">
 							    	<button type="button" class="btn btn-default">
 							    		<span class="glyphicon glyphicon-refresh">
@@ -99,7 +121,6 @@
 							    		<span class="glyphicon glyphicon-chevron-right"></span>
 							    	</a>
 						    	</div>
-						    	<div class="clearfix"></div>
 							</div><!-- heading -->
 						  	<div class="panel-body">
 						     	<table class="table table-striped">
@@ -146,43 +167,61 @@
 						  	<div class="panel-body">
 						     	<ul class="nav nav-pills">
 								  	<li class="active">
-									  	<a href="#exoticpets" data-toggle="tab">
+									  	<a href="#stock" data-toggle="tab">
 									  		<span class="glyphicon glyphicon-dashboard"></span>
-									  		Current Stock
+									  		<span class="hidden_word">Current</span> Stock
 									  	</a>
 								  	</li>
 								  	<li>
-									  	<a href="#grooming" data-toggle="tab">
+									  	<a href="#charts" data-toggle="tab">
 									  		<span class="glyphicon glyphicon-stats"></span>
-										  	Historical Charts
+										  	<span class="hidden_word">Historical</span> Charts
 										</a>
 									</li>
 								  	<li>
-									  	<a href="#generalhealth" data-toggle="tab">
+									  	<a href="#news" data-toggle="tab">
 										  	<span class="glyphicon glyphicon-link"></span>
-										  	News Feeds
+										  	News <span class="hidden_word">Feeds</span>
 										</a>
 									</li>
-								</ul>
+								</ul><!-- nav -->
 
 								<hr>
-								
-								<div class="tab-content">
-								  	<div class="tab-pane active" id="exoticpets">
-									 	<h3>Exotic Pets</h3>
-									    <p>We offer specialized care for reptiles, rodents, birds, and other exotic pets.</p>
-									 </div>
 
-								  	<div class="tab-pane" id="grooming">
+								<div class="tab-content">
+								  	<div class="tab-pane active" id="stock">
+								  			<div class="row">
+							  					<div class="text-left col-md-6">
+									  				<b>Stock Details</b>
+									  			</div>
+									  			
+									  			<div class="text-right col-md-6">
+									 				<a href=""><img src="img/fb.png" width="35" height="35"></a>
+									 				<button type="button" class="btn btn-default"><span style="font-size:20px" class="fa fa-star-o"></span></button>
+										 		</div>
+									  		</div>
+									 	<div class="row">
+									 		<div class="col-md-6">
+									 			<table class="table table-responsiv table-striped">
+									 				<tbody id="stock_table_content"></tbody>
+									 			</table>
+									 		</div>
+									 		<div class="col-md-6">
+									 			<div id="stockChart"></div>
+									 		</div>
+									 	</div>
+									</div><!-- tab-pane-1 -->
+
+								  	<div class="tab-pane" id="charts">
 									    <h3>Grooming</h3>
 									    <p>Our therapeutic grooming treatments help battle fleas, allergic dermatitis, and other challenging skin conditions.</p>
-								  	</div>
+								  	</div><!-- tab-pane-2 -->
 
-								  	<div class="tab-pane" id="generalhealth">
+								  	<div class="tab-pane" id="news">
 									    <h3>General Health</h3>
 									    <p>Wellness and senior exams, ultrasound, x-ray, and dental cleanings are just a few of our general health services.</p>
-								  	</div>
-								</div>
+								  	</div><!-- tab-pane-3 -->
+								</div><!-- tab-content -->
 						  	</div><!-- panel-body -->
 						</div><!-- panel -->
 				    </div><!-- second item -->
