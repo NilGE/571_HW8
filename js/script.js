@@ -66,11 +66,33 @@ function stockChartBuild(val) {
     val+'&lang=en-US&width=400&height=300" width="500">');
 }
 
+function stockDetailBuild(symbol) {
+  $.get(
+    "php/backend.php",
+    "symbol="+symbol, 
+    function(data, status){
+      var obj = jQuery.parseJSON(data);
+      if(obj != null && obj.Status == "SUCCESS") {
+        tableBuild(obj);
+        stockChartBuild(symbol);
+        if(localStorage.getItem(symbol)) {
+          $('.glyphicon-star').addClass("favorite");
+        } else {
+          $('.glyphicon-star').removeClass("favorite");
+        }
+        $(".carousel").carousel("next");
+      } else {
+        $('#non_valid_prompt').text('Select a valid entry');
+      }
+  });
+  dataType:"json";
+}
+
 function add_favor_row(obj) {
   var row_content = '';
   row_content += '<tr id="'+obj.Symbol+'">';
 
-  row_content += '<td><a href="#">'+obj.Symbol+'</a></td>';
+  row_content += '<td><a href="#" onclick="stockDetailBuild(this.text)">'+obj.Symbol+'</a></td>';
 
   row_content += '<td>'+obj.Name+'</td>';
 
@@ -81,7 +103,7 @@ function add_favor_row(obj) {
   var changePercent = Number(obj.ChangePercent).toFixed(2);
   var color = change > 0? 'green':'red';
   var img = change > 0? 'img/up.png':'img/down.png';
-  row_content += '<td style="color:'+color+'"><span id="s_change">'+change+' ( '+changePercent+'% )</span> '+'<img src="'+img+'">'+'</td>';
+  row_content += '<td style="color:'+color+'"><span>'+change+' ( '+changePercent+'% )</span> '+'<img src="'+img+'">'+'</td>';
 
   var marketCapNum = Number(obj.MarketCap);
   var marketCap ='';
@@ -97,15 +119,12 @@ function add_favor_row(obj) {
   row_content += '<td>'+marketCap+'</td>';
 
   //delete the row
-  row_content += '<td><button type="button" class="btn default"><span class="glyphicon glyphicon-trash"></span></button></td>';
+  row_content += '<td><button onclick="removeFavor(this)" type="button" class="btn default"><span class="glyphicon glyphicon-trash"></span></button></td>';
   row_content += '</tr>';
   $('#favor_list_content').append(row_content);
 }
       
-function refreshFavorTable(val) {
-  //refresh all the items in favorite list
-  $('#favor_list_content').clear();
-  alert(localStorage.length);
+function init_favor_table() {
   for(var i = 0;i < localStorage.length;i++) {
     var curr_symbol = localStorage.getItem(localStorage.key(i));
     $.get(
@@ -114,9 +133,7 @@ function refreshFavorTable(val) {
       function(data, status){ 
         var obj = jQuery.parseJSON(data);
         if(obj != null && obj.Status  == "SUCCESS") {
-          $(".carousel").carousel("next");
-          tableBuild(obj);
-          stockChartBuild($("#name_symbol").val());
+          add_favor_row(obj);
         } else {
           alert("Favorate add error");
         }
@@ -124,7 +141,54 @@ function refreshFavorTable(val) {
   }
 }
 
+function refreshFavorTable() {
+  //refresh all the items in favorite list
+  for(var i = 0;i < localStorage.length;i++) {
+    var curr_symbol = localStorage.getItem(localStorage.key(i));
+    $.get(
+      "php/backend.php",
+      "symbol="+curr_symbol, 
+      function(data, status){ 
+        var obj = jQuery.parseJSON(data);
+        if(obj != null && obj.Status  == "SUCCESS") {
+          var curr_symbol = obj.Symbol;
+          var price = Number(obj.LastPrice).toFixed(2);
+          $('#'+curr_symbol +' td:nth-child(3)').text('$ '+price);
+          var change = Number(obj.Change).toFixed(2);
+          var changePercent = Number(obj.ChangePercent).toFixed(2);
+          var color = change > 0? 'green':'red';
+          var img = change > 0? 'img/up.png':'img/down.png';
+          $('#'+curr_symbol +' td:nth-child(4)').css('color', color);
+          $('#'+curr_symbol +' td:nth-child(4) span').text(change+' ( '+changePercent+'% )');
+          $('#'+curr_symbol +' td:nth-child(4) img').attr('src', img);
+        } else {
+          alert("Favorate add error");
+        }
+    });
+  }
+}
+
+var timer_ID;
+function startAutoRefresh() {
+  timer_ID = setInterval(function(){ refreshFavorTable() }, 5000);
+}
+
+function stopAutoRefresh() {
+  clearInterval(timer_ID);
+}
+
+function removeFavor(obj){
+  var row_id = ""+obj.parentNode.parentNode.id;
+  localStorage.removeItem(row_id);
+  if($('#s_symbol').text() == row_id) {
+    $('.glyphicon-star').removeClass("favorite");
+  }
+  $("#"+row_id).remove();
+}
+
 $(document).ready(function(){
+  init_favor_table();
+
   $( "#name_symbol" ).autocomplete({
       // source: "php/autocomplete.php",
       // minLength:3
@@ -150,20 +214,8 @@ $(document).ready(function(){
 
   $('#quote_form').submit(function(event) {
       event.preventDefault();
-      $.get(
-        "php/backend.php",
-        "symbol="+$("#name_symbol").val(), 
-        function(data, status){
-          var obj = jQuery.parseJSON(data);
-          if(obj != null && obj.Status == "SUCCESS") {
-            $(".carousel").carousel("next");
-            tableBuild(obj);
-            stockChartBuild($("#name_symbol").val());
-          } else {
-            $('#non_valid_prompt').text('Select a valid entry');
-          }
-      });
-      dataType:"json";
+      curr_symbol = $("#name_symbol").val();
+      stockDetailBuild(curr_symbol);
   });
 
   $("#name_symbol").keypress(function(){
@@ -176,15 +228,15 @@ $(document).ready(function(){
   });
 
   $('#favor_btn').click(function(){
+    var curr_symbol = $('#s_symbol').text();
     // $('.glyphicon-star').css("color","yellow");
     if($('.glyphicon-star').hasClass("favorite")) {
       $('.glyphicon-star').removeClass("favorite");
-      localStorage.removeItem($('#s_symbol').text());
+      localStorage.removeItem(curr_symbol);
       //remove a row
-      
+      $('#'+curr_symbol).remove();
     } else {
       $('.glyphicon-star').addClass("favorite");
-      var curr_symbol = $('#s_symbol').text();
       localStorage.setItem(curr_symbol, curr_symbol);
       //add a row
       $.get(
