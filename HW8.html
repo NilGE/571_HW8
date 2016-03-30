@@ -29,8 +29,11 @@
 	<!-- <script src="js/bootstrap-toggle.min.js"></script> -->
 	
 	<link rel="stylesheet" type="text/css" href="css/HW8.css">
+
+	<script src="https://code.highcharts.com/stock/highstock.js"></script>
 	<script type="text/javascript" src="js/script.js"></script>
 	<script type="text/javascript" src="js/date.format.min.js"></script>
+
 </head>
 <body>
 	<script>
@@ -129,7 +132,7 @@
 						    	<h3 class="panel-title pull-left">Favorite List</h3>
 						    	<div class="pull-right">
 						    		<span class="hidden_word">Automatic Refresh:</span>
-						    		<input type="checkbox" data-toggle="toggle">
+						    		<input id="toggleRefresh" type="checkbox" data-toggle="toggle">
 							    	<button onclick="refreshFavorTable()" type="button" class="btn btn-default">
 							    		<span class="glyphicon glyphicon-refresh">
 							    	</button>
@@ -217,8 +220,11 @@
 									</div><!-- tab-pane-1 -->
 
 								  	<div class="tab-pane" id="charts">
-									    <h3>Grooming</h3>
-									    <p>Our therapeutic grooming treatments help battle fleas, allergic dermatitis, and other challenging skin conditions.</p>
+									    <div class="row">
+								    		<div id="highstock_chart" class="col-lg-12">
+								    			
+								    		</div>
+								    	</div>
 								  	</div><!-- tab-pane-2 -->
 
 								  	<div class="tab-pane" id="news">
