@@ -1,166 +1,5 @@
-  var Markit = {};
-  /**
-   * Define the InteractiveChartApi.
-   * First argument is symbol (string) for the quote. Examples: AAPL, MSFT, JNJ, GOOG.
-   * Second argument is duration (int) for how many days of history to retrieve.
-   */
-  Markit.InteractiveChartApi = function(symbol,duration){
-      this.symbol = symbol.toUpperCase();
-      this.duration = duration;
-      this.PlotChart();
-  };
-
-  Markit.InteractiveChartApi.prototype.PlotChart = function(){
-      
-      var params = {
-          parameters: JSON.stringify( this.getInputParams() )
-      }
-
-      //Make JSON request for timeseries data
-      $.ajax({
-          beforeSend:function(){
-              $("#highstock_chart").text("Loading chart...");
-          },
-          data: params,
-          url: "http://dev.markitondemand.com/Api/v2/InteractiveChart/jsonp",
-          dataType: "jsonp",
-          context: this,
-          success: function(json){
-              //Catch errors
-              if (!json || json.Message){
-                  console.error("Error: ", json.Message);
-                  return;
-              }
-              this.render(json);
-          },
-          error: function(response,txtStatus){
-              console.log(response,txtStatus)
-          }
-      });
-  };
-
-  //return the parameters of Interactive Chart API
-  Markit.InteractiveChartApi.prototype.getInputParams = function(){
-      return {  
-          Normalized: false,
-          NumberOfDays: this.duration,
-          DataPeriod: "Day",
-          Elements: [
-              {
-                  Symbol: this.symbol,
-                  Type: "price",
-                  Params: ["ohlc"]
-              }
-          ]
-      }
-  };
-
-  Markit.InteractiveChartApi.prototype._fixDate = function(dateIn) {
-      var dat = new Date(dateIn);
-      return Date.UTC(dat.getFullYear(), dat.getMonth(), dat.getDate());
-  };
-
-  Markit.InteractiveChartApi.prototype._getOHLC = function(json) {
-      var dates = json.Dates || [];
-      var elements = json.Elements || [];
-      var chartSeries = [];
-
-      if (elements[0]){
-
-          for (var i = 0, datLen = dates.length; i < datLen; i++) {
-              var dat = this._fixDate( dates[i] );
-              var pointData = [
-                  dat,
-                  elements[0].DataSeries['open'].values[i],
-                  elements[0].DataSeries['high'].values[i],
-                  elements[0].DataSeries['low'].values[i],
-                  elements[0].DataSeries['close'].values[i]
-              ];
-              chartSeries.push( pointData );
-          };
-      }
-      return chartSeries;
-  };
-
-  Markit.InteractiveChartApi.prototype.render = function(data) {
-      var ohlc = this._getOHLC(data);
-
-      // create the chart
-      $('#highstock_chart').highcharts('StockChart', {
-          
-          rangeSelector: {
-            buttons : [{
-                    type : 'week',
-                    count : 1,
-                    text : '1w'
-                }, {
-                    type : 'month',
-                    count : 1,
-                    text : '1m'
-                }, {
-                    type : 'month',
-                    count : 3,
-                    text : '3m'
-                }, {
-                    type : 'month',
-                    count : 6,
-                    text : '3m'
-                }, {
-                    type : 'ytd',
-                    count : 1,
-                    text : 'YTD'
-                }, {
-                    type : 'year',
-                    count : 1,
-                    text : '1y'
-                }, {
-                    type : 'all',
-                    count : 1,
-                    text : 'All'
-                }],
-              selected: 0,
-              // enabled: false
-              inputEnabled : false
-          },
-
-          title: {
-              text: this.symbol + ' Stock Value'
-          },
-
-          yAxis: [{
-              title: {
-                  text: 'Stock Value'
-              }
-          }],
-          
-          series: [{
-              type: 'area',
-              name: this.symbol,
-              data: ohlc,
-              tooltip: {
-                    valueDecimals: 2
-                },
-                fillColor : {
-                    linearGradient : {
-                        x1: 0,
-                        y1: 0,
-                        x2: 0,
-                        y2: 1
-                    },
-                    stops : [
-                        [0, Highcharts.getOptions().colors[0]],
-                        [1, Highcharts.Color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
-                    ]
-                },
-                threshold: null
-          
-          }]
-      });
-  };
-
-
-
-//Build table
+  
+//Build stock details table
 function tableBuild(obj){
   $('#stock_table_content').empty();
 
@@ -221,17 +60,53 @@ function tableBuild(obj){
   $('#stock_table_content').append('<tr><th>Opening Price</th><td>$ '+open+'</td></tr>');
 }
 
+//Yahoo Chart
 function stockChartBuild(val) {
   $('#stockChart').empty();
   $('#stockChart').append('<img class="img-responsive" src="http://chart.finance.yahoo.com/t?s='+
     val+'&lang=en-US&width=400&height=300" width="500">');
 }
 
+//high stock chart
 function highStockChartPlot(val) {
   var myMarkit = new Markit.InteractiveChartApi(val,1095);
   myMarkit.PlotChart();
 }
 
+//news feeds
+function NewFeedsFormat(obj) {
+  var results = obj.d.results;
+  var content = '';
+  for(var i in results) {
+    content += '<div class="well">';
+    content += '<a href="'+results[i].__metadata.uri+'"">'+results[i].Title+'</a>';
+    content += '<br><br>';
+    content += '<div>'+results[i].Description+'</div>';
+    content += '<br><br>';
+    content += '<b>Publisher: '+results[i].Source+'</b>';
+    content += '<br><br>';
+    var time = new Date(results[i].Date);
+    content += '<b>Date: '+time.format('d M Y H:i:s')+'</b>';
+    content += '<br><br>';
+
+    content += '</div>';
+  }
+  $('#news_feeds').empty();
+  $('#news_feeds').append(content);
+}
+
+function getNewsFeeds(symbol) {
+ $.get(
+    "php/bingSearch.php",
+    "symbol="+symbol, 
+    function(data, status){
+      var obj = jQuery.parseJSON(data);
+      NewFeedsFormat(obj);
+  });
+  dataType:"json";
+}
+
+//create all stock detials
 function stockDetailBuild(symbol) {
   $.get(
     "php/backend.php",
@@ -242,6 +117,7 @@ function stockDetailBuild(symbol) {
         tableBuild(obj);
         stockChartBuild(symbol);
         highStockChartPlot(symbol);
+        getNewsFeeds(symbol);
         if(localStorage.getItem(symbol)) {
           $('.glyphicon-star').addClass("favorite");
         } else {
@@ -255,6 +131,25 @@ function stockDetailBuild(symbol) {
   dataType:"json";
 }
 
+//initial favorite table
+function init_favor_table() {
+  for(var i = 0;i < localStorage.length;i++) {
+    var curr_symbol = localStorage.getItem(localStorage.key(i));
+    $.get(
+      "php/backend.php",
+      "symbol="+curr_symbol, 
+      function(data, status){ 
+        var obj = jQuery.parseJSON(data);
+        if(obj != null && obj.Status  == "SUCCESS") {
+          add_favor_row(obj);
+        } else {
+          alert("Favorate add error");
+        }
+    });
+  }
+}
+
+//add a row to favorite table
 function add_favor_row(obj) {
   var row_content = '';
   row_content += '<tr id="'+obj.Symbol+'">';
@@ -290,23 +185,18 @@ function add_favor_row(obj) {
   row_content += '</tr>';
   $('#favor_list_content').append(row_content);
 }
-      
-function init_favor_table() {
-  for(var i = 0;i < localStorage.length;i++) {
-    var curr_symbol = localStorage.getItem(localStorage.key(i));
-    $.get(
-      "php/backend.php",
-      "symbol="+curr_symbol, 
-      function(data, status){ 
-        var obj = jQuery.parseJSON(data);
-        if(obj != null && obj.Status  == "SUCCESS") {
-          add_favor_row(obj);
-        } else {
-          alert("Favorate add error");
-        }
-    });
+
+//remove a row from favorite table
+function removeFavor(obj){
+  var row_id = ""+obj.parentNode.parentNode.id;
+  localStorage.removeItem(row_id);
+  if($('#s_symbol').text() == row_id) {
+    $('.glyphicon-star').removeClass("favorite");
   }
+  $("#"+row_id).remove();
 }
+  
+//refresh favortie table
 function refreshFavorTable() {
   //refresh all the items in favorite list
   for(var i = 0;i < localStorage.length;i++) {
@@ -335,26 +225,23 @@ function refreshFavorTable() {
 }
 
 var timer_ID;
+
+// start automatical refresh
 function startAutoRefresh() {
   timer_ID = setInterval(function(){ refreshFavorTable() }, 5000);
 }
 
+// stop automatical refresh
 function stopAutoRefresh() {
   clearInterval(timer_ID);
 }
 
-function removeFavor(obj){
-  var row_id = ""+obj.parentNode.parentNode.id;
-  localStorage.removeItem(row_id);
-  if($('#s_symbol').text() == row_id) {
-    $('.glyphicon-star').removeClass("favorite");
-  }
-  $("#"+row_id).remove();
-}
 
+//jquery
 $(document).ready(function(){
   init_favor_table();
 
+  //autocomplete
   $( "#name_symbol" ).autocomplete({
       // source: "php/autocomplete.php",
       // minLength:3
@@ -378,21 +265,25 @@ $(document).ready(function(){
       }
   });
 
+  //submit the form and show the stock details
   $('#quote_form').submit(function(event) {
       event.preventDefault();
       curr_symbol = $("#name_symbol").val();
       stockDetailBuild(curr_symbol);
   });
 
+  //clear input field
   $("#name_symbol").keypress(function(){
     $("#non_valid_prompt").text('');
   });
 
+  //setting carousel animation
   $('.carousel').carousel({ 
       interval: false,
       wrap: false
   });
 
+  //click favorite button
   $('#favor_btn').click(function(){
     var curr_symbol = $('#s_symbol').text();
     // $('.glyphicon-star').css("color","yellow");
@@ -419,6 +310,7 @@ $(document).ready(function(){
     }
   });
 
+  //refresh toggle
   $('#toggleRefresh').change(function(){
     if($(this).prop('checked')) {
       startAutoRefresh();

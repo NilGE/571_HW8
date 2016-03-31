@@ -31,11 +31,14 @@
 	<link rel="stylesheet" type="text/css" href="css/HW8.css">
 
 	<script src="https://code.highcharts.com/stock/highstock.js"></script>
+	<!-- // <script src="https://code.highcharts.com/stock/modules/exporting.js"></script> -->
+	<script type="text/javascript" src="js/highChart.js"></script>
 	<script type="text/javascript" src="js/script.js"></script>
 	<script type="text/javascript" src="js/date.format.min.js"></script>
 
 </head>
 <body>
+	<!-- facebook feeds dialoag -->
 	<script>
 	  window.fbAsyncInit = function() {
 	    FB.init({
@@ -54,13 +57,14 @@
 	   }(document, 'script', 'facebook-jssdk'));
 
 	  function fb_feeds() {
-	  	FB.login(function(response){
-	  		FB.getLoginStatus(function(response) {
-			  if (response.status === 'connected') {
+	  	// FB.login(function(response){
+	  	// 	FB.getLoginStatus(function(response) {
+			 //  if (response.status === 'connected') {
 			    FB.ui({
 			  		method: 'feed',
-		          	link: 'https://cs-server.usc.edu:20909/HW8/HW8.html',
-		          	picture: 'http://chart.finance.yahoo.com/t?s='+$("#name_symbol").val()+'&lang=en-US&width=400&height=300',
+		          	link: 'http://cs-server.usc.edu:20909/HW8/HW8.html',
+		          	// link: 'https://developers.facebook.com/docs/',
+		          	picture: 'http://chart.finance.yahoo.com/t?s='+$("#s_symbol").text()+'&lang=en-US&width=400&height=300',
 		          	name: '“Current Stock Price of '+$("#s_name").text()+' is '+$("#s_price").text(),
 		          	caption: 'Last Traded Price: '+$("#s_price").text()+', '+$("#s_change").text(),
 		          	description: 'Stock Information of '+$("#s_name").text()+' ('+$("#s_symbol").text()+')'
@@ -71,20 +75,22 @@
 				      alert('Not Posted');
 				    }
 		        });
-			  } else if(response.status == 'not_authorized') {
-			  	alert("not authorized!");
-			  } else {
-			    FB.login();
-			  }
-			});
-	  	});
+			//   } else if(response.status == 'not_authorized') {
+			//   	alert("not authorized!");
+			//   } else {
+			//     FB.login();
+			//   }
+			// });
+	  // 	});
 	  }
 	</script>
 	<div class="container">
-		<div class="well">
+		<!-- search form -->
+		<div class="well result-area">
 				<div class="row">
 					<div class="h4" style="text-align:center">Stock Market Search</div>
 				</div>
+
 				<div class="row">
 					<form id="quote_form">
 						<div class="form-group col-md-4 col-lg-3">
@@ -121,7 +127,8 @@
 
 		<hr>
 
-		<div class="well">
+		<!-- result area -->
+		<div class="well result-area">
 			<div class="carousel slide" id="result_tab"><!-- data-ride="carousel" -->
 			  	<div class="carousel-inner" >
 
@@ -171,7 +178,11 @@
 							    	<b>Stock Details</b>
 								</div>
 						  	</div><!-- panel heading -->
+
+
 						  	<div class="panel-body">
+
+						  		<!-- navigation -->
 						     	<ul class="nav nav-pills">
 								  	<li class="active">
 									  	<a href="#stock" data-toggle="tab">
@@ -195,6 +206,9 @@
 
 								<hr>
 
+								<!-- tab content -->
+
+								<!-- current stock -->
 								<div class="tab-content">
 								  	<div class="tab-pane active" id="stock">
 								  			<div class="row">
@@ -219,17 +233,21 @@
 									 	</div>
 									</div><!-- tab-pane-1 -->
 
-								  	<div class="tab-pane" id="charts">
+									<!-- historical chart -->
+								  	<div class="tab-pane fade" id="charts" style="height: 500px; width:100%">
 									    <div class="row">
-								    		<div id="highstock_chart" class="col-lg-12">
+								    		<div id="highstock_chart" class="col-12-lg">
 								    			
 								    		</div>
 								    	</div>
 								  	</div><!-- tab-pane-2 -->
 
+								  	<!-- news feeds -->
 								  	<div class="tab-pane" id="news">
-									    <h3>General Health</h3>
-									    <p>Wellness and senior exams, ultrasound, x-ray, and dental cleanings are just a few of our general health services.</p>
+									    <div id = "news_feeds">
+									    	<div class="well">
+									    	</div>
+									    </div>
 								  	</div><!-- tab-pane-3 -->
 								</div><!-- tab-content -->
 						  	</div><!-- panel-body -->
