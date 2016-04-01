@@ -12,8 +12,8 @@ function tableBuild(obj){
 
   var change = Number(obj.Change).toFixed(2);
   var changePercent = Number(obj.ChangePercent).toFixed(2);
-  var color = change > 0? 'green':'red';
-  var img = change > 0? 'img/up.png':'img/down.png';
+  var color = changePercent > 0? 'green':'red';
+  var img = changePercent > 0? 'img/up.png':'img/down.png';
   $('#stock_table_content').append('<tr><th>Change (Change Percent)</th>'
     +'<td style="color:'+color+'"><span id="s_change">'+change+' ( '+changePercent+'% )</span> '+'<img src="'+img+'">'+'</td></tr>');
 
@@ -42,8 +42,8 @@ function tableBuild(obj){
 
   var changeYTD = Number(obj.ChangeYTD).toFixed(2);
   var changePercentYTD = Number(obj.ChangePercentYTD).toFixed(2);
-  color = changeYTD > 0?'green':'red';
-  img = changeYTD > 0? 'img/up.png':'img/down.png';
+  color = changePercentYTD > 0?'green':'red';
+  img = changePercentYTD > 0? 'img/up.png':'img/down.png';
   $('#stock_table_content').append('<tr><th>Change YTD (Change Percent YTD)</th>'
     +'<td style="color:'+color+'">'+changeYTD+' ( '+changePercentYTD+'% ) '+'<img src="'+img+'">'+'</td></tr>');
 
@@ -79,7 +79,7 @@ function NewFeedsFormat(obj) {
   var content = '';
   for(var i in results) {
     content += '<div class="well">';
-    content += '<a href="'+results[i].__metadata.uri+'"">'+results[i].Title+'</a>';
+    content += '<a href="'+results[i].Url+'"">'+results[i].Title+'</a>';
     content += '<br><br>';
     content += '<div>'+results[i].Description+'</div>';
     content += '<br><br>';
@@ -97,8 +97,8 @@ function NewFeedsFormat(obj) {
 
 function getNewsFeeds(symbol) {
  $.get(
-    "php/bingSearch.php",
-    "symbol="+symbol, 
+    "http://certain-mystery-126718.appspot.com/",
+    "target="+symbol, 
     function(data, status){
       var obj = jQuery.parseJSON(data);
       NewFeedsFormat(obj);
@@ -109,7 +109,7 @@ function getNewsFeeds(symbol) {
 //create all stock detials
 function stockDetailBuild(symbol) {
   $.get(
-    "php/backend.php",
+    "http://certain-mystery-126718.appspot.com/",
     "symbol="+symbol, 
     function(data, status){
       var obj = jQuery.parseJSON(data);
@@ -136,7 +136,7 @@ function init_favor_table() {
   for(var i = 0;i < localStorage.length;i++) {
     var curr_symbol = localStorage.getItem(localStorage.key(i));
     $.get(
-      "php/backend.php",
+      "http://certain-mystery-126718.appspot.com/",
       "symbol="+curr_symbol, 
       function(data, status){ 
         var obj = jQuery.parseJSON(data);
@@ -163,8 +163,8 @@ function add_favor_row(obj) {
 
   var change = Number(obj.Change).toFixed(2);
   var changePercent = Number(obj.ChangePercent).toFixed(2);
-  var color = change > 0? 'green':'red';
-  var img = change > 0? 'img/up.png':'img/down.png';
+  var color = changePercent > 0? 'green':'red';
+  var img = changePercent > 0? 'img/up.png':'img/down.png';
   row_content += '<td style="color:'+color+'"><span>'+change+' ( '+changePercent+'% )</span> '+'<img src="'+img+'">'+'</td>';
 
   var marketCapNum = Number(obj.MarketCap);
@@ -202,7 +202,7 @@ function refreshFavorTable() {
   for(var i = 0;i < localStorage.length;i++) {
     var curr_symbol = localStorage.getItem(localStorage.key(i));
     $.get(
-      "php/backend.php",
+      "http://certain-mystery-126718.appspot.com/",
       "symbol="+curr_symbol, 
       function(data, status){ 
         var obj = jQuery.parseJSON(data);
@@ -236,10 +236,18 @@ function stopAutoRefresh() {
   clearInterval(timer_ID);
 }
 
+//Clear
+function clear() {
+  $('#name_symbol').val('');
+  $('#slide_btn').addClass('disabled');
+  $("#non_valid_prompt").text('');
+}
 
 //jquery
 $(document).ready(function(){
   init_favor_table();
+
+  // $('[data-toggle="tooltip"]').tooltip(); 
 
   //autocomplete
   $( "#name_symbol" ).autocomplete({
@@ -248,7 +256,7 @@ $(document).ready(function(){
 
       source: function( request, response ) {
         $.ajax({
-          url: "php/autocomplete.php",
+          url: "http://certain-mystery-126718.appspot.com/",
           dataType: "json",
           data: {term: request.term},
           success: function(data) {
@@ -269,6 +277,8 @@ $(document).ready(function(){
   $('#quote_form').submit(function(event) {
       event.preventDefault();
       curr_symbol = $("#name_symbol").val();
+      $('#non_valid_prompt').text('');
+      $('#slide_btn').removeClass('disabled');
       stockDetailBuild(curr_symbol);
   });
 
@@ -297,7 +307,7 @@ $(document).ready(function(){
       localStorage.setItem(curr_symbol, curr_symbol);
       //add a row
       $.get(
-        "php/backend.php",
+        "http://certain-mystery-126718.appspot.com/",
         "symbol="+curr_symbol, 
         function(data, status){ 
           var obj = jQuery.parseJSON(data);
@@ -317,5 +327,10 @@ $(document).ready(function(){
     } else {
       stopAutoRefresh();
     }
+  });
+
+  //clear
+  $('#clear_btn').click(function(){
+    clear();
   });
 });

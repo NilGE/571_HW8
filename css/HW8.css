@@ -19,15 +19,6 @@ body {
 	height: 20px;
 }
 
-/*.panel-heading h4 {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    line-height: normal;
-    width: 75%;
-    padding-top: 8px;
-}*/
-
 @media(max-width: 992px){
 	.hidden_word {
 		display: none;
