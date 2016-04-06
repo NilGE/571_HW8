@@ -19,8 +19,8 @@ function tableBuild(obj){
 
 
   var time = new Date(obj.Timestamp);
-  $('#stock_table_content').append('<tr><th>Time and Date</th><td>'+time.format('d F Y, h:i:s a')+'</td></tr>');
-
+  var formatTime = moment(time).format('DD MMMM YYYY, hh:mm:ss a');
+  $('#stock_table_content').append('<tr><th>Time and Date</th><td>'+formatTime+'</td></tr>');
 
   var marketCapNum = Number(obj.MarketCap);
   var marketCap ='';
@@ -86,7 +86,7 @@ function NewFeedsFormat(obj) {
     content += '<b>Publisher: '+results[i].Source+'</b>';
     content += '<br><br>';
     var time = new Date(results[i].Date);
-    content += '<b>Date: '+time.format('d M Y H:i:s')+'</b>';
+    content += '<b>Date: '+moment(time).format('DD MMM YYYY HH:mm:ss')+'</b>';
     content += '<br><br>';
 
     content += '</div>';
@@ -123,6 +123,7 @@ function stockDetailBuild(symbol) {
         } else {
           $('.glyphicon-star').removeClass("favorite");
         }
+        $('#slide_btn').prop('disabled',false);
         $(".carousel").carousel("next");
       } else {
         $('#non_valid_prompt').text('Select a valid entry');
@@ -131,9 +132,13 @@ function stockDetailBuild(symbol) {
   dataType:"json";
 }
 
+
+
+
 //initial favorite table
 function init_favor_table() {
   for(var i = 0;i < localStorage.length;i++) {
+    setTimeout(function(){},1000);
     var curr_symbol = localStorage.getItem(localStorage.key(i));
     $.get(
       "http://certain-mystery-126718.appspot.com/",
@@ -146,7 +151,7 @@ function init_favor_table() {
           alert("Favorate add error");
         }
     });
-  }
+    }
 }
 
 //add a row to favorite table
@@ -181,7 +186,7 @@ function add_favor_row(obj) {
   row_content += '<td>'+marketCap+'</td>';
 
   //delete the row
-  row_content += '<td><button onclick="removeFavor(this)" type="button" class="btn default"><span class="glyphicon glyphicon-trash"></span></button></td>';
+  row_content += '<td><button onclick="removeFavor(this)" type="button" class="btn btn-default"><span class="glyphicon glyphicon-trash"></span></button></td>';
   row_content += '</tr>';
   $('#favor_list_content').append(row_content);
 }
@@ -239,8 +244,13 @@ function stopAutoRefresh() {
 //Clear
 function clear() {
   $('#name_symbol').val('');
-  $('#slide_btn').addClass('disabled');
+  $('#slide_btn').prop('disabled',true);
   $("#non_valid_prompt").text('');
+  $(".carousel").carousel("prev");
+}
+
+function slideNext() {
+  $(".carousel").carousel("next");
 }
 
 //jquery
@@ -278,12 +288,11 @@ $(document).ready(function(){
       event.preventDefault();
       curr_symbol = $("#name_symbol").val();
       $('#non_valid_prompt').text('');
-      $('#slide_btn').removeClass('disabled');
       stockDetailBuild(curr_symbol);
   });
 
   //clear input field
-  $("#name_symbol").keypress(function(){
+  $("#name_symbol").keyup(function(){
     $("#non_valid_prompt").text('');
   });
 
@@ -332,5 +341,11 @@ $(document).ready(function(){
   //clear
   $('#clear_btn').click(function(){
     clear();
+  });
+
+  $('#highChartPill').click(function(){
+    setTimeout(function(){
+        $('#highstock_chart').highcharts().reflow();
+    }, 200);
   });
 });

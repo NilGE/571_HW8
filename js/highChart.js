@@ -104,7 +104,7 @@ var Markit = {};
                 }, {
                     type : 'month',
                     count : 6,
-                    text : '3m'
+                    text : '6m'
                 }, {
                     type : 'ytd',
                     count : 1,

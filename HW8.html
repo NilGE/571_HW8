@@ -34,7 +34,8 @@
 	<!-- // <script src="https://code.highcharts.com/stock/modules/exporting.js"></script> -->
 	<script type="text/javascript" src="js/highChart.js"></script>
 	<script type="text/javascript" src="js/script.js"></script>
-	<script type="text/javascript" src="js/date.format.min.js"></script>
+	<!-- // <script type="text/javascript" src="js/date.format.min.js"></script> -->
+	<script type="text/javascript" src="js/moment.js"></script>
 
 </head>
 <body>
@@ -62,7 +63,7 @@
 			 //  if (response.status === 'connected') {
 			    FB.ui({
 			  		method: 'feed',
-		          	link: 'http://cs-server.usc.edu:20909/HW8/HW8.html',
+		          	link: 'www-scf.usc.edu/~gexiangy/HW8/HW8.html',
 		          	// link: 'https://developers.facebook.com/docs/',
 		          	picture: 'http://chart.finance.yahoo.com/t?s='+$("#s_symbol").text()+'&lang=en-US&width=400&height=300',
 		          	name: '“Current Stock Price of '+$("#s_name").text()+' is '+$("#s_price").text(),
@@ -139,13 +140,15 @@
 						    	<h3 class="panel-title pull-left">Favorite List</h3>
 						    	<div class="pull-right">
 						    		<span class="hidden_word">Automatic Refresh:</span>
-						    		<span data-toggle="tooltip" title="Auto Refresh"><input id="toggleRefresh" type="checkbox" data-toggle="toggle" ></sapn>
+						    		<span data-toggle="tooltip" title="Auto Refresh">
+						    			<input id="toggleRefresh" type="checkbox" data-toggle="toggle" >
+						    		</span>
 							    	<button onclick="refreshFavorTable()" type="button" class="btn btn-default" data-toggle="tooltip" title="Refresh">
 							    		<span class="glyphicon glyphicon-refresh">
 							    	</button>
-							    	<a id="slide_btn" href="#result_tab" class="btn btn-default disabled" data-slide="next" data-toggle="tooltip" title="next page">
+							    	<button id="slide_btn" onclick="slideNext()" class="btn btn-default" data-slide="next" data-toggle="tooltip" title="next page" disabled>
 							    		<span class="glyphicon glyphicon-chevron-right"></span>
-							    	</a>
+							    	</button>
 						    	</div>
 							</div><!-- heading -->
 						  	<div class="panel-body">
@@ -190,7 +193,7 @@
 									  		<span class="hidden_word">Current</span> Stock
 									  	</a>
 								  	</li>
-								  	<li>
+								  	<li id="highChartPill">
 									  	<a href="#charts" data-toggle="tab">
 									  		<span class="glyphicon glyphicon-stats"></span>
 										  	<span class="hidden_word">Historical</span> Charts
@@ -223,11 +226,11 @@
 									  		</div>
 									 	<div class="row">
 									 		<div class="col-md-6">
-									 			<table class="table table-responsiv table-striped">
+									 			<table class="table table-responsive table-striped">
 									 				<tbody id="stock_table_content"></tbody>
 									 			</table>
 									 		</div>
-									 		<div class="col-md-6">
+										 		<div class="col-md-6">
 									 			<div id="stockChart"></div>
 									 		</div>
 									 	</div>

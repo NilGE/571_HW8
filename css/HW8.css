@@ -34,3 +34,7 @@ body {
 .favorite {
 	color: yellow;
 }
+
+#news_feeds .well {
+	background: linear-gradient(rgb(225,225,225), white);
+}
